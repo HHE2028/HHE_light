@@ -241,6 +241,10 @@ img { max-width: 100%; height: auto; display: block; }
 .footer ul.case-cols { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; justify-content: start; grid-template-rows: repeat(6, auto); column-gap: 18px; }
 .footer ul.case-cols li { margin-bottom: 4px; }
 .footer ul.case-cols li:last-child { margin-bottom: 7px; }
+/* 桌面端：快速导航列靠右对齐，紧贴"关注我们" */
+@media (min-width: 993px) {
+  .footer .cols > div:nth-child(3) { justify-self: end; }
+}
 .footer h4 { color: #fff; font-size: 16px; margin-bottom: 16px; }
 .footer p, .footer li { color: #8a919e; font-size: 13px; list-style: none; margin-bottom: 8px; }
 .footer li a { color: #8a919e; }
@@ -294,7 +298,9 @@ img { max-width: 100%; height: auto; display: block; }
   .news-list .item { flex-direction: column; }
   .flow-row img { min-width: 45%; }
   .news-list .item .thumb { width: 100%; height: 180px; }
-  .footer .cols { grid-template-columns: 1fr; }
+  .footer .cols { grid-template-columns: 1fr 1fr; column-gap: 20px; }
+  .footer .social-row { gap: 6px; flex-wrap: wrap; }
+  .footer .soc { width: 32px; height: 32px; flex: 0 0 32px; }
   .sec-head h2 { font-size: 22px; }
   .detail h1 { font-size: 20px; }
   .section { padding: 36px 0; }
@@ -367,9 +373,10 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .empty-state .btn:hover { background: #d3a95f; color: #10131a; }
 
-/* 移动端：页脚四列改单列，案例分类改两列 */
+/* 移动端：页脚首两列通栏，快速导航与关注我们同排，案例分类改两列 */
 @media (max-width: 768px) {
-  .footer .cols { grid-template-columns: 1fr; }
+  .footer .cols { grid-template-columns: 1fr 1fr; column-gap: 20px; }
+  .footer .cols > div:nth-child(1), .footer .cols > div:nth-child(2) { grid-column: 1 / -1; }
   .footer ul.case-cols {
     grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(2, 1fr);
   }

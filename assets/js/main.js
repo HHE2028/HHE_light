@@ -294,29 +294,41 @@
       }
     }
 
-    // 4. 菜单当前项：href 与当前路径前缀匹配则给父 li 加 active
+    // 4. 菜单当前项：只取路径匹配最长的一项作为 active，首页仅精确匹配
     var navLinks = document.querySelectorAll('.nav a');
-    var cur = location.pathname.replace(/\/+$/, '');
+    var norm = function (p) { return p.replace(/\/index\.html$/, '').replace(/\/+$/, ''); };
+    var cur = norm(location.pathname);
+    var logo = document.querySelector('.header .logo');
+    var homePath = '';
+    if (logo) {
+      try {
+        homePath = norm(new URL(logo.getAttribute('href'), location.href).pathname);
+      } catch (e) {
+        homePath = '';
+      }
+    }
+    var bestLi = null, bestLen = -1;
     for (var n = 0; n < navLinks.length; n++) {
       var nu = '';
       try {
-        nu = new URL(navLinks[n].getAttribute('href'), location.href).pathname.replace(/\/+$/, '');
+        nu = norm(new URL(navLinks[n].getAttribute('href'), location.href).pathname);
       } catch (e) {
         nu = '';
       }
       var isActive = false;
-      if (!nu || nu === '') {
-        isActive = (cur === '');
-      } else if (nu === '/') {
-        isActive = (cur === '' || cur === '/');
-      } else {
-        isActive = cur === nu || cur.indexOf(nu + '/') === 0;
+      if (nu === cur) {
+        isActive = true;
+      } else if (nu && nu !== homePath && cur.indexOf(nu + '/') === 0) {
+        isActive = true;
       }
-      if (isActive) {
-        var li = navLinks[n].parentNode;
-        while (li && li.tagName !== 'LI' && li !== navRoot) li = li.parentNode;
-        if (li && li.tagName === 'LI') li.classList.add('active');
+      if (!isActive || nu.length <= bestLen) continue;
+      var li = navLinks[n].parentNode;
+      while (li && li.tagName !== 'LI' && li !== navRoot) li = li.parentNode;
+      if (li && li.tagName === 'LI') {
+        bestLen = nu.length;
+        bestLi = li;
       }
     }
+    if (bestLi) bestLi.classList.add('active');
   });
 })();

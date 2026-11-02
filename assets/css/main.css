@@ -238,7 +238,7 @@ img { max-width: 100%; height: auto; display: block; }
 .lab { display: inline-block; width: 3.1em; }
 .footer .cols { display: grid; grid-template-columns: 1.9fr 1.25fr 1fr 1.1fr; gap: 30px; }
 /* 页脚案例中心双列排布，与右侧模块底部齐平 */
-.footer ul.case-cols { display: grid; grid-auto-flow: column; grid-template-rows: repeat(6, auto); column-gap: 14px; }
+.footer ul.case-cols { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; justify-content: start; grid-template-rows: repeat(6, auto); column-gap: 18px; }
 .footer ul.case-cols li { margin-bottom: 4px; }
 .footer ul.case-cols li:last-child { margin-bottom: 7px; }
 .footer h4 { color: #fff; font-size: 16px; margin-bottom: 16px; }

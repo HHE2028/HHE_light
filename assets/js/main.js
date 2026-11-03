@@ -391,17 +391,30 @@
     (function (card) {
       var iframe = card.querySelector('iframe');
       if (!iframe) return;
-      var src = iframe.getAttribute('src');
+      // prep 脚本已把 iframe 的 src 改写为 data-src，避免页面加载时即发起请求/自动播放
+      var src = iframe.getAttribute('data-src') || iframe.getAttribute('src');
       if (!src || card.getAttribute('data-video-ready')) return;
       card.setAttribute('data-video-ready', '1');
 
-      // 暂存原始地址并清空 src，阻止页面加载时自动播放/加载
+      // 兜底：若 src 仍存在则清空，确保未点击前不加载
       iframe.setAttribute('data-src', src);
       iframe.removeAttribute('src');
 
       var host = card.querySelector('.post__iframe') || card;
       host.style.position = 'relative';
       card.classList.add('video-pending');
+
+      // 项目缩览图（prep 脚本注入到 data-poster），铺在卡片底层，金色播放按钮叠加在其上
+      var poster = null;
+      var posterUrl = card.getAttribute('data-poster');
+      if (posterUrl) {
+        poster = document.createElement('img');
+        poster.className = 'video-trigger__poster';
+        poster.src = posterUrl;
+        poster.alt = '';
+        poster.setAttribute('aria-hidden', 'true');
+        host.insertBefore(poster, host.firstChild);
+      }
 
       var trigger = document.createElement('button');
       trigger.type = 'button';
@@ -417,6 +430,7 @@
         card.classList.remove('video-pending');
         card.classList.add('video-playing');
         trigger.style.display = 'none';
+        if (poster) poster.style.display = 'none';
       });
 
       host.appendChild(trigger);

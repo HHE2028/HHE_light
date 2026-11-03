@@ -332,3 +332,48 @@
     if (bestLi) bestLi.classList.add('active');
   });
 })();
+
+// 灯光动画页：前端分页（12 个视频一页，样式与案例中心分页一致）
+(function () {
+  var grid = document.getElementById('videoGrid');
+  var pager = document.getElementById('videoPagination');
+  if (!grid || !pager) return;
+
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('.video-card'));
+  var perPage = parseInt(pager.getAttribute('data-per-page') || '12', 10);
+  var totalPages = Math.ceil(cards.length / perPage);
+  if (totalPages < 2) return;
+
+  var current = 1;
+
+  function render() {
+    var html = '<a class="pg-edge' + (current === 1 ? ' off' : '') + '" data-page="' + (current - 1) + '">上一页</a>';
+    for (var p = 1; p <= totalPages; p++) {
+      html += '<a class="pg-num' + (p === current ? ' cur' : '') + '" data-page="' + p + '">' + p + '</a>';
+    }
+    html += '<a class="pg-edge' + (current === totalPages ? ' off' : '') + '" data-page="' + (current + 1) + '">下一页</a>';
+    pager.innerHTML = html;
+  }
+
+  function show(page) {
+    current = page;
+    cards.forEach(function (c, i) {
+      c.style.display = (i >= (page - 1) * perPage && i < page * perPage) ? '' : 'none';
+    });
+    render();
+    var top = grid.getBoundingClientRect().top + window.pageYOffset - 120;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  }
+
+  pager.addEventListener('click', function (e) {
+    var t = e.target;
+    while (t && t !== pager && !(t.tagName === 'A')) t = t.parentNode;
+    if (!t || t.tagName !== 'A') return;
+    e.preventDefault();
+    var p = parseInt(t.getAttribute('data-page'), 10);
+    if (p < 1 || p > totalPages || p === current) return;
+    show(p);
+  });
+
+  show(1);
+})();

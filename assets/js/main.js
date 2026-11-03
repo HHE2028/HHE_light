@@ -347,11 +347,14 @@
   var current = 1;
 
   function render() {
-    var html = '<a class="pg-edge' + (current === 1 ? ' off' : '') + '" data-page="' + (current - 1) + '">上一页</a>';
+    var html = '';
+    html += '<a class="pg-edge' + (current === 1 ? ' off' : '') + '" data-page="1">首页</a>';
+    html += '<a class="pg-edge' + (current === 1 ? ' off' : '') + '" data-page="' + (current - 1) + '">上一页</a>';
     for (var p = 1; p <= totalPages; p++) {
       html += '<a class="pg-num' + (p === current ? ' cur' : '') + '" data-page="' + p + '">' + p + '</a>';
     }
     html += '<a class="pg-edge' + (current === totalPages ? ' off' : '') + '" data-page="' + (current + 1) + '">下一页</a>';
+    html += '<a class="pg-edge' + (current === totalPages ? ' off' : '') + '" data-page="' + totalPages + '">末页</a>';
     pager.innerHTML = html;
   }
 
@@ -369,6 +372,7 @@
     var t = e.target;
     while (t && t !== pager && !(t.tagName === 'A')) t = t.parentNode;
     if (!t || t.tagName !== 'A') return;
+    if (t.classList && t.classList.contains('off')) return;
     e.preventDefault();
     var p = parseInt(t.getAttribute('data-page'), 10);
     if (p < 1 || p > totalPages || p === current) return;
@@ -376,4 +380,46 @@
   });
 
   show(1);
+})();
+
+// 灯光动画页：视频点击触发播放，默认不加载/不自动播放，避免整页视频同时播放造成混乱
+(function () {
+  var grid = document.getElementById('videoGrid');
+  if (!grid) return;
+  var cards = grid.querySelectorAll('.video-card');
+  for (var i = 0; i < cards.length; i++) {
+    (function (card) {
+      var iframe = card.querySelector('iframe');
+      if (!iframe) return;
+      var src = iframe.getAttribute('src');
+      if (!src || card.getAttribute('data-video-ready')) return;
+      card.setAttribute('data-video-ready', '1');
+
+      // 暂存原始地址并清空 src，阻止页面加载时自动播放/加载
+      iframe.setAttribute('data-src', src);
+      iframe.removeAttribute('src');
+
+      var host = card.querySelector('.post__iframe') || card;
+      host.style.position = 'relative';
+      card.classList.add('video-pending');
+
+      var trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'video-trigger';
+      trigger.setAttribute('aria-label', '点击播放视频');
+      trigger.innerHTML = '<span class="video-trigger__play"></span><span class="video-trigger__txt">点击播放</span>';
+
+      trigger.addEventListener('click', function () {
+        if (!iframe.getAttribute('src')) {
+          var sep = src.indexOf('?') > -1 ? '&' : '?';
+          iframe.setAttribute('src', src + sep + 'autoplay=1');
+        }
+        card.classList.remove('video-pending');
+        card.classList.add('video-playing');
+        trigger.style.display = 'none';
+      });
+
+      host.appendChild(trigger);
+    })(cards[i]);
+  }
 })();
